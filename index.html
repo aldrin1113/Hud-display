@@ -1,13 +1,14 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Car HUD</title>
   <style>
     body {
       margin: 0;
       background-color: #000;
-      color: #0f0;
+      color: #00ff00;
       font-family: 'Courier New', Courier, monospace;
       display: flex;
       flex-direction: column;
@@ -15,21 +16,35 @@
       align-items: center;
       height: 100vh;
       overflow: hidden;
-      transform: scaleX(-1); /* Mirror horizontally */
+      transform: scaleX(-1); /* Mirror horizontally for HUD */
     }
+
+    .hud {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+      text-align: center;
+    }
+
     .metric {
-      font-size: 4rem;
-      margin: 0.5rem;
-      text-shadow: 0 0 10px #0f0;
+      font-size: 6rem;
+      text-shadow: 0 0 20px #00ff00;
     }
+
+    .sub-metric {
+      font-size: 2rem;
+      text-shadow: 0 0 10px #00ff00;
+    }
+
     .controls {
       position: absolute;
       bottom: 10px;
       display: flex;
       gap: 1rem;
-      font-size: 1rem;
       transform: scaleX(-1); /* Un-mirror buttons */
     }
+
     button {
       padding: 0.5rem 1rem;
       background-color: #111;
@@ -38,23 +53,40 @@
       border-radius: 5px;
       cursor: pointer;
     }
+
     button:hover {
       background-color: #0f0;
       color: #000;
     }
+
+    .night-mode {
+      background-color: #333;
+      color: #0f0;
+    }
+
+    .night-mode .metric,
+    .night-mode .sub-metric {
+      text-shadow: 0 0 10px #0f0;
+    }
   </style>
 </head>
 <body>
-  <div class="metric" id="speed">0 km/h</div>
-  <div class="metric" id="clock">00:00</div>
-  <div class="metric" id="coords">--.--, --.--</div>
-  <div class="metric" id="battery">Battery: --%</div>  <div class="controls">
+  <div class="hud">
+    <div class="metric" id="speed">0 km/h</div>
+    <div class="sub-metric" id="clock">00:00</div>
+    <div class="sub-metric" id="battery">Battery: --%</div>
+  </div>
+
+  <div class="controls">
     <button onclick="toggleUnits()">Toggle Units</button>
     <button onclick="toggleMirror()">Toggle Mirror</button>
     <button onclick="toggleNightMode()">Night Mode</button>
-  </div>  <script>
+  </div>
+
+  <script>
     let useKmph = true;
     let mirrored = true;
+
     function updateClock() {
       const now = new Date();
       document.getElementById("clock").textContent =
@@ -69,7 +101,6 @@
       const speedKmph = speed * 3.6;
       const displaySpeed = useKmph ? speedKmph : speedKmph / 1.609;
       document.getElementById("speed").textContent = `${displaySpeed.toFixed(1)} ${useKmph ? 'km/h' : 'mph'}`;
-      document.getElementById("coords").textContent = `${position.coords.latitude.toFixed(5)}, ${position.coords.longitude.toFixed(5)}`;
     }
 
     function handleError(error) {
@@ -99,7 +130,8 @@
     }
 
     function toggleNightMode() {
-      document.body.style.backgroundColor = document.body.style.backgroundColor === '#000' ? '#333' : '#000';
+      document.body.classList.toggle('night-mode');
     }
-  </script></body>
+  </script>
+</body>
 </html>
