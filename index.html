@@ -1,0 +1,105 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Car HUD</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #000;
+      color: #0f0;
+      font-family: 'Courier New', Courier, monospace;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      transform: scaleX(-1); /* Mirror horizontally */
+    }
+    .metric {
+      font-size: 4rem;
+      margin: 0.5rem;
+      text-shadow: 0 0 10px #0f0;
+    }
+    .controls {
+      position: absolute;
+      bottom: 10px;
+      display: flex;
+      gap: 1rem;
+      font-size: 1rem;
+      transform: scaleX(-1); /* Un-mirror buttons */
+    }
+    button {
+      padding: 0.5rem 1rem;
+      background-color: #111;
+      color: #0f0;
+      border: 1px solid #0f0;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0f0;
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+  <div class="metric" id="speed">0 km/h</div>
+  <div class="metric" id="clock">00:00</div>
+  <div class="metric" id="coords">--.--, --.--</div>
+  <div class="metric" id="battery">Battery: --%</div>  <div class="controls">
+    <button onclick="toggleUnits()">Toggle Units</button>
+    <button onclick="toggleMirror()">Toggle Mirror</button>
+    <button onclick="toggleNightMode()">Night Mode</button>
+  </div>  <script>
+    let useKmph = true;
+    let mirrored = true;
+    function updateClock() {
+      const now = new Date();
+      document.getElementById("clock").textContent =
+        now.getHours().toString().padStart(2, '0') + ":" +
+        now.getMinutes().toString().padStart(2, '0');
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    function updateSpeed(position) {
+      const speed = position.coords.speed || 0;
+      const speedKmph = speed * 3.6;
+      const displaySpeed = useKmph ? speedKmph : speedKmph / 1.609;
+      document.getElementById("speed").textContent = `${displaySpeed.toFixed(1)} ${useKmph ? 'km/h' : 'mph'}`;
+      document.getElementById("coords").textContent = `${position.coords.latitude.toFixed(5)}, ${position.coords.longitude.toFixed(5)}`;
+    }
+
+    function handleError(error) {
+      console.error("GPS error:", error);
+    }
+
+    navigator.geolocation.watchPosition(updateSpeed, handleError, {
+      enableHighAccuracy: true,
+      maximumAge: 1000
+    });
+
+    navigator.getBattery && navigator.getBattery().then(function(battery) {
+      function updateBattery() {
+        document.getElementById("battery").textContent = `Battery: ${(battery.level * 100).toFixed(0)}%`;
+      }
+      updateBattery();
+      battery.addEventListener('levelchange', updateBattery);
+    });
+
+    function toggleUnits() {
+      useKmph = !useKmph;
+    }
+
+    function toggleMirror() {
+      mirrored = !mirrored;
+      document.body.style.transform = mirrored ? "scaleX(-1)" : "scaleX(1)";
+    }
+
+    function toggleNightMode() {
+      document.body.style.backgroundColor = document.body.style.backgroundColor === '#000' ? '#333' : '#000';
+    }
+  </script></body>
+</html>
